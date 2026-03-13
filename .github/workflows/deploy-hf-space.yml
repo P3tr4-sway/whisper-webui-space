@@ -36,7 +36,31 @@ jobs:
           HF_SPACE_ID: ${{ vars.HF_SPACE_ID }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
+          mkdir -p /tmp/hf-space
+          rsync -av \
+            --delete \
+            --exclude ".git" \
+            --exclude ".github" \
+            --exclude ".venv" \
+            --exclude "__pycache__" \
+            --exclude "tests" \
+            --exclude "notebooks" \
+            --exclude "data" \
+            --exclude "approach.png" \
+            --exclude "language-breakdown.svg" \
+            --exclude "model-card.md" \
+            --exclude "CHANGELOG.md" \
+            --exclude "youtube_audio_*.mp3" \
+            --exclude "youtube_audio_*.m4a" \
+            --exclude "*.wav" \
+            ./ /tmp/hf-space/
+
+          cd /tmp/hf-space
           git config --global user.email "actions@github.com"
           git config --global user.name "github-actions[bot]"
+          git init
+          git checkout -b main
+          git add .
+          git commit -m "Deploy Space snapshot"
           git remote add hf "https://oauth2:${HF_TOKEN}@huggingface.co/spaces/${HF_SPACE_ID}"
           git push --force hf HEAD:main
