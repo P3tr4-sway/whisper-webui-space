@@ -1,3 +1,9 @@
+---
+title: Whisper Web UI
+sdk: docker
+app_port: 7860
+---
+
 # Whisper
 
 [[Blog]](https://openai.com/blog/whisper)
@@ -108,6 +114,59 @@ whisper --help
 ```
 
 See [tokenizer.py](https://github.com/openai/whisper/blob/main/whisper/tokenizer.py) for the list of all available languages.
+
+
+## Minimal Web UI
+
+This repository can also run a minimal local web UI for transcription.
+
+Install the extra dependency:
+
+```bash
+pip install -r requirements-web.txt
+```
+
+Start the web app:
+
+```bash
+python webui.py
+```
+
+Then open <http://127.0.0.1:5000> in your browser.
+
+Environment variables:
+
+- `WHISPER_WEB_MODEL` defaults to `large`
+- `WHISPER_WEB_HOST` defaults to `127.0.0.1`
+- `WHISPER_WEB_PORT` defaults to `5000`
+
+The UI supports switching between `tiny`, `base`, and `large`, includes a live memory table that refreshes automatically, and can transcribe either an uploaded file or a browser-recorded clip.
+
+## Deploy To GitHub And Hugging Face Spaces
+
+This repository can be deployed as a Docker Space.
+
+### Recommended setup
+
+1. Create a new GitHub repository for this project.
+2. Create a new Hugging Face Space and choose `Docker` as the SDK.
+3. In the GitHub repository settings:
+   - add an Actions secret named `HF_TOKEN`
+   - add a repository variable named `HF_SPACE_ID`
+4. Set `HF_SPACE_ID` to the full Space path:
+
+```text
+your-hf-username/your-space-name
+```
+
+5. Push `main` to GitHub. The workflow at `.github/workflows/deploy-hf-space.yml` will mirror the branch to the Space.
+
+### Notes
+
+- The Space listens on port `7860`
+- The Docker image installs `ffmpeg` and starts the app with `gunicorn`
+- The Docker image defaults to `WHISPER_WEB_MODEL=base` to keep free CPU Spaces usable
+- Local test audio files are ignored so they do not get pushed to GitHub or Hugging Face
 
 
 ## Python usage
